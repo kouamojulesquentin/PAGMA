@@ -1,0 +1,69 @@
+* 4th-Order Continuous-Time Low Pass Filter (100kHz)
+* PHYSICAL VERSION: Uses primitive_rpoly2 and primitive_cpoly
+* Dimensions calculated for W=2um (Res) and Square shape (Cap)
+
+.subckt FILTER V_in V_out vdda vssa vref pd xpd
+
+    * --- ETAGE 1 ---
+    X1 inn1 vref out1 pd xpd vdda vssa OPAMP1
+    
+    * R1 (102k)
+    xr1 V_in inn1 primitive_rpoly2 L=3.570e-3 W=2e-6 M=1
+    * R2 (101k)
+    xr2 inn1 out1 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * R3 (101k)
+    xr3 out3 inn1 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * C1 (20.3p)
+    xc1 inn1 out1 primitive_cpoly AREA=23.60e-9 PERI=614.4e-6 M=1
+
+    * --- ETAGE 2 ---
+    X2 inn2 vref out2 pd xpd vdda vssa OPAMP1
+    
+    * R4 (101k) (Note: dans le schéma R4 vient de out1)
+    xr4 out1 inn2 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * R5 (101k)
+    xr5 inn2 out2 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+
+    * --- ETAGE 3 ---
+    X3 inn3 vref out3 pd xpd vdda vssa OPAMP1
+    
+    * R6 (99k)
+    xr6 out2 inn3 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * C2 (10.2p)
+    xc2 inn3 out3 primitive_cpoly AREA=11.86e-9 PERI=435.6e-6 M=1
+    
+    * [SIMULATION] Stabilisation 10Meg (Physique)
+    xr_stab_3 inn3 out3 primitive_rpoly2 L=0.35 W=2e-6 M=1
+
+    * --- ETAGE 4 ---
+    X4 inn4 vref out4 pd xpd vdda vssa OPAMP1
+    
+    * R7 (99k) (Note: sur schéma Fig 7a c'est R7 qui relie out3->inn4)
+    xr7 out3 inn4 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * R12 (102k)
+    xr12 V_out inn4 primitive_rpoly2 L=3.570e-3 W=2e-6 M=1
+    * C3 (20.3p)
+    xc3 inn4 out4 primitive_cpoly AREA=23.60e-9 PERI=614.4e-6 M=1
+    
+    * [SIMULATION] Stabilisation 10Meg (Physique)
+    xr_stab_4 inn4 out4 primitive_rpoly2 L=0.35 W=2e-6 M=1
+
+    * --- ETAGE 5 ---
+    X5 inn5 vref out5 pd xpd vdda vssa OPAMP1
+    
+    * R8 (99k)
+    xr8 out4 inn5 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * R9 (101k)
+    xr9 inn5 out5 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+
+    * --- ETAGE 6 ---
+    X6 inn6 vref V_out pd xpd vdda vssa OPAMP1
+    
+    * R11 (99k) (Input)
+    xr11 out5 inn6 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * R10 (101k) (Feedback)
+    xr10 inn6 V_out primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * C4 (10.2p)
+    xc4 inn6 V_out primitive_cpoly AREA=11.86e-9 PERI=435.6e-6 M=1
+
+.ends

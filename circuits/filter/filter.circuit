@@ -1,0 +1,87 @@
+* ============================================================
+* Disclaimer:
+* No rights or licenses are granted by ams to Recipient, expressly
+* or by implication. (Insert standard disclaimer here if required.)
+* © ams AG
+* ============================================================
+* TESTBENCH — 4th-Order Continuous-Time Low Pass Filter
+* ============================================================
+
+* ============================================================
+* GLOBAL PARAMETERS
+* ============================================================
+.TEMP 27
+.PARAM vddnom   = 3.3
+.PARAM vref_val = 1.65
+
+* ============================================================
+* SUPPLY SOURCES
+* ============================================================
+* Main supply — 3.3 V
+VDD  vdda 0 DC vddnom
+* Analog ground — 0 V
+VSS  vssa 0 DC 0
+* Reference voltage — virtual mid-rail (1.65 V)
+* Required to bias the non-inverting inputs of the op-amps
+VREF vref 0 DC vref_val
+
+* ============================================================
+* CONTROL SIGNALS (Power-Down)
+* ============================================================
+* PD  = 0 — active-low shutdown; 0 keeps the amplifier ON
+V_pd  pd  0 DC 0
+* XPD = 3.3 V — active-high enable; VDD keeps the amplifier ON
+V_xpd xpd 0 DC vddnom
+
+* ============================================================
+* INPUT STIMULUS
+* ============================================================
+* Sine wave centred on Vref (1.65 V)
+* Offset = 1.65 V, Amplitude = 0.5 V, Frequency = 100 kHz
+* Uncomment for transient simulation:
+*Vin V_in 0 SIN(vref_val 0.5 100k)
+* AC small-signal source for Bode plot:
+Vin V_in 0 DC 1.65 AC 1
+
+* ============================================================
+* FILTER INSTANTIATION
+* ============================================================
+* Pin order: V_in V_out vdda vssa vref pd xpd
+Xdut V_in V_out vdda vssa vref pd xpd FILTER
+
+* ============================================================
+* OUTPUT LOAD
+* ============================================================
+Cload V_out 0 1p
+
+* ============================================================
+* INCLUDE FILES
+* ============================================================
+* Load models in dependency order
+.INCLUDE subcircuit_files/PRIMITIVE.sub
+.INCLUDE subcircuit_files/OPAMP1.sub
+.INCLUDE subcircuit_files/FILTER.sub
+* Process corner models
+.INCLUDE process_models/typical.process
+
+* ============================================================
+* ANALYSES
+* ============================================================
+* Transient — 
+* Uncomment to enable:
+*.TRAN 0.1u 200u
+
+* AC (Bode plot) — 
+.AC DEC 20 1k 10Meg
+
+* ============================================================
+* AUTOMATIC MEASUREMENTS
+* ============================================================
+* 1. Gain at 20 kHz  — magnitude of V_out
+.MEAS AC Gain_20k     FIND vm(V_out) AT=20k
+* 2. Gain at 100 kHz
+.MEAS AC Gain_100k    FIND vm(V_out) AT=100k
+* 3. Cut-off frequency — 
+.MEAS AC Freq_Cutoff  WHEN vm(V_out)=0.426
+
+.END

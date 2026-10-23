@@ -1,0 +1,29 @@
+simulator lang=spice
+* Testbench ML - Stimulus PRBS
+
+.TEMP 27
+
+VDD vdda 0 3.3
+Vpd pd 0 0
+Vxpd xpd 0 3.3
+
+* Entree PWL (Sera remplacee par Python)
+Vin inp 0 PWL (0 1.65 1u 1.65) 
+
+* Instanciation
+X1 vout inp vout pd xpd vdda 0 OPAMP1
+
+Cload vout 0 50e-15
+
+.INCLUDE subcircuit_files/OPAMP1.sub
+.INCLUDE subcircuit_files/PRIMITIVE.sub
+.INCLUDE process_models/typical.process
+
+* Simulation sur 7us pour contenir les 127 bits a 20MHz
+* On garde le strobeperiod a 10ns pour avoir 5 points par bit (Suffisant pour ML)
+.TRAN 10n 7u 0 strobeperiod=10n
+
+* On exporte dans le fichier .print
+.PRINT TRAN V(vout)
+
+.END

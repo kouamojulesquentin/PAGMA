@@ -1,0 +1,3 @@
+* Demo RC low-pass: in -> R1 -> out, C1 to ground
+R1 in out R=10k
+C1 out 0 C=1n

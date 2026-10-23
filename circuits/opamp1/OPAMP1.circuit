@@ -1,0 +1,74 @@
+simulator lang=spice
+.TEMP 27
+.param vddmin=3.0 vddnom=3.3 vddmax=3.6
+* Disclaimer:
+* THIS FILE IS PROVIDED “AS IS” AND WITH:
+* (A)  NO WARRANTY OF ANY KIND, express, implied or statutory, including any implied warranties of merchantability or 
+* fitness for a particular purpose, which Mentor Graphics disclaims to the maximum extent permitted by applicable law; and
+* (B)  NO INDEMNIFICATION FOR INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS.
+* LIMITATION OF LIABILITY:  IN NO EVENT SHALL MENTOR GRAPHICS OR ITS LICENSORS BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, 
+* INCIDENTAL, OR CONSEQUENTIAL DAMAGES (INCLUDING LOST PROFITS OR SAVINGS) WHATSOEVER, WHETHER BASED ON CONTRACT, TORT OR 
+* ANY OTHER LEGAL THEORY, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+* © 2017 Mentor Graphics Corporation. All rights reserved.
+
+* Operational amplifier
+* Specifications, with Cload= 50fF 
+*            Min   Typ   Max                    
+* Voffset    -1    0.3   1    mV
+* Vpp_1MHz   700   900   1000 mV
+* delay_1MHz 0     50    120  ns
+* Iddq       0     0.1   0.3  uA  
+* 
+* in/out nodes
+* inn    : inverting input
+* inp    : non-inverting input
+* out    : analog output
+* pd     : power-down digital input, active high
+* xpd    : pd-inverted digital input
+* vdda   : 3.3 VDC, power in 
+* vssa   : ground
+*.subckt OPAMP1 inn inp out pd xpd vdda vssa 
+
+
+
+
+X1 out inp out pd xpd vdda 0  OPAMP1
+
+
+
+
+VDD vdda 0 vddnom
+
+Cload  out   0  50e-15
+
+* Test description
+* non-inverting buffer configuration; measure output-input offset, then apply 1Vp-p @ 2 MHz, and measure output Vp-p and phase delay
+*               Voff Vampl freq
+Vin  inp  0 sin(1.65 0.5 1meg)  
+*Vin  inp  0 DC 1 AC 1  
+Vpd  pd   0 pwl(0,        0,
++               2u,       0,
++               2.1u,    vddnom)
+Vxpd xpd  0 pwl(0,       vddnom,
++               2u,      vddnom,
++               2.1u,     0)
+*.AC DEC 20 1k 100meg
+*.MEAS AC GainDC FIND v(out) AT=1k
+*.MEAS AC Bandwidth WHEN v(out)=0.707 FALL=1
+*.MEAS AC Freq_Unitaire WHEN v(out)=1 FALL=1
+.MEAS Voffset    FIND v(out,inp) at=0                                    
+.MEAS Vpp@1MHz   PP   v(out) from=0.2u to=1.8u                            
+.MEAS delay      TRIG v(inp) val=1.65 td=10n TARG v(out) val=1.65 td=50n  
+.MEAS Iddq       FIND i(VDD) at=2.2u                                      
+
+.INCLUDE subcircuit_files/OPAMP1.sub
+.INCLUDE subcircuit_files/PRIMITIVE.sub
+
+*.INCLUDE process_models/fastN_fastP.process
+*.INCLUDE process_models/slowN_fastP.process
+.INCLUDE process_models/typical.process
+*.INCLUDE process_models/fastN_slowP.process
+*.INCLUDE process_models/slowN_slowP.process
+.TRAN 0.1u 2.3u 0.0
+.END
+

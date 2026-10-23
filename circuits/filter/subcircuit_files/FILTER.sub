@@ -1,0 +1,82 @@
+* ============================================================
+* 4th-Order Continuous-Time Low Pass Filter — 100 kHz
+* Physical implementation using primitive_rpoly2 and primitive_cpoly
+* Resistor dimensions: W = 2 um
+* Capacitor dimensions: Square shape
+* ============================================================
+
+.subckt FILTER V_in V_out vdda vssa vref pd xpd
+
+    * =========================================================
+    * STAGE 1
+    * =========================================================
+    X1 inn1 vref out1 pd xpd vdda vssa OPAMP1
+
+    * R1 — 102 kΩ
+    xr1 V_in  inn1 primitive_rpoly2 L=3.570e-3 W=2e-6 M=1
+    * R2 — 101 kΩ
+    xr2 inn1  out1 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * R3 — 101 kΩ  
+    xr3 out3  inn1 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * C1
+    xc1 inn1  out1 primitive_cpoly AREA=23.60e-9 PERI=614.4e-6 M=1
+
+    * =========================================================
+    * STAGE 2
+    * =========================================================
+    X2 inn2 vref out2 pd xpd vdda vssa OPAMP1
+
+    * R4 — 101 kΩ  
+    xr4 out1  inn2 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * R5 — 101 kΩ
+    xr5 inn2  out2 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+
+    * =========================================================
+    * STAGE 3
+    * =========================================================
+    X3 inn3 vref out3 pd xpd vdda vssa OPAMP1
+
+    * R6 — 99 kΩ
+    xr6 out2  inn3 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * C2 — 10.2 pF
+    xc2 inn3  out3 primitive_cpoly AREA=11.86e-9 PERI=435.6e-6 M=1
+    
+    xr_stab_3 inn3 out3 primitive_rpoly2 L=0.35 W=2e-6 M=1
+
+    * =========================================================
+    * STAGE 4
+    * =========================================================
+    X4 inn4 vref out4 pd xpd vdda vssa OPAMP1
+
+    * R7 — 99 kΩ 
+    xr7  out3  inn4 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * R12 — 102 kΩ 
+    xr12 V_out inn4 primitive_rpoly2 L=3.570e-3 W=2e-6 M=1
+    * C3 — 20.3 pF
+    xc3 inn4  out4 primitive_cpoly AREA=23.60e-9 PERI=614.4e-6 M=1
+   
+    xr_stab_4 inn4 out4 primitive_rpoly2 L=0.35 W=2e-6 M=1
+
+    * =========================================================
+    * STAGE 5
+    * =========================================================
+    X5 inn5 vref out5 pd xpd vdda vssa OPAMP1
+
+    * R8 — 99 kΩ
+    xr8 out4  inn5 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * R9 — 101 kΩ
+    xr9 inn5  out5 primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+
+    * =========================================================
+    * STAGE 6
+    * =========================================================
+    X6 inn6 vref V_out pd xpd vdda vssa OPAMP1
+
+    * R11 — 99 kΩ  (input)
+    xr11 out5  inn6 primitive_rpoly2 L=3.465e-3 W=2e-6 M=1
+    * R10 — 101 kΩ  (feedback)
+    xr10 inn6  V_out primitive_rpoly2 L=3.535e-3 W=2e-6 M=1
+    * C4 — 10.2 pF
+    xc4 inn6  V_out primitive_cpoly AREA=11.86e-9 PERI=435.6e-6 M=1
+
+.ends FILTER

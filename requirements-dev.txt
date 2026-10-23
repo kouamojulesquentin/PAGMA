@@ -1,0 +1,3 @@
+-r requirements.txt
+-r requirements-train.txt
+pytest>=6.0

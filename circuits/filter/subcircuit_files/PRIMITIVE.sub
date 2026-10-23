@@ -1,0 +1,32 @@
+* PRIMITIVE.sub - Corrected 
+.subckt primitive_nd a c area=1e-12 pj=4e-6
+D1 A C DNINSUB AREA=AREA PJ=PJ
+.ENDS
+
+.subckt primitive_nwd a c area=1e-12 pj=4e-6
+D1 A C DNWINSUB AREA=AREA PJ=PJ
+.ENDS 
+
+.subckt primitive_pd a c area=1e-12 pj=4e-6
+D1 A C DPINSUB AREA=AREA PJ=PJ
+.ENDS
+
+.subckt primitive_rdiffp d b s w=1e-6 l=1e-6 dtemp=0
+J1 D B S RDIFFP DTEMP=DTEMP
+.MODEL RDIFFP PJF LEVEL=1
++ BETA='3.571e-06*(W-(-1.0e-07))/(L-(0.0))/(1+(1.5e-03)*(TEMPER+DTEMP-2.700e+01))'    
++ BEX='-300.15*(1.5e-03)'
++ VTO='-1.0e+03+(0.000e+00/(W-(-1.0e-07)))'  LAMBDA=0.0
++ IS='1.4e-07*W*L+1.8e-13*(W+L)'    PB=1.0   XTI=1.9e+00
++ CGS='6.8e-04*W*L+3.2e-10*(W+L)'   RS=1.0
++ CGD='6.8e-04*W*L+3.2e-10*(W+L)'   RD=1.0   RG=1.0
+.ENDS
+
+* --- COMPOSANTS BENCHMARK ---
+.subckt bench_res n1 n2 r=1k
+R1 n1 n2 R=r
+.ends
+
+.subckt bench_cap n1 n2 c=1p
+C1 n1 n2 C=c
+.ends
